@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # coding: utf-8
-# Copyright (c) 2013-2014 Abram Hindle
+# Copyright (c) 2013-2020 Colin Choi
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -84,7 +84,7 @@ class Client:
 
 def set_listener( entity, data ):
     ''' do something with the update ! '''
-    
+
 myWorld.add_set_listener( set_listener )
 
 @app.route('/')
