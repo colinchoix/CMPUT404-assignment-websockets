@@ -30,7 +30,7 @@
         <span><button  onclick="canvasColor = '#fff';renderFrame();" style="border-radius: 20%;font-weight:bold;background-color:white;"" type="button">Light</button></span>
     </div>
 
-    <div id="debug"></div>
+    <div id="debug" class="toolbar" style="width: 35em;height: 1.5em;color:red;"></div>
     
     <canvas id="c" width="100%" height="100%" style="-webkit-tap-highlight-color: transparent;border-style: inset;border-width: 0.2em;border-radius: 5%;"></canvas> 
     <div class="toolbar" >
@@ -43,7 +43,7 @@
         <span><button class="tool" onclick="brushColor = 'blue';" style="background-color:blue;"" type="button"></button></span>
         <span><button class="tool" onclick="brushColor = 'indigo';" style="background-color:indigo;"" type="button"></button></span>
         <span><button class="tool" onclick="brushColor = 'violet';" style="background-color:violet;"" type="button"></button></span>
-        <span><button onclick="clearWorld()" style="height:2.5em;border-radius: 20%;font-weight:bold;color: white;background-color:black;float:right;margin: 20px;"" type="button">Clear Canvas</button></span>
+        <span><button id="clickMe" onclick="clickedMe = true;" style="height:2.5em;border-radius: 20%;font-weight:bold;color: white;background-color:black;float:right;margin: 20px;"" type="button">///// CLICK WITH CAUTION /////</button></span>
     </div>
     <script>
       // Fix me
@@ -57,6 +57,9 @@ var canvasColor = "#000";
 // TODO: New
 var wscounter = 0;
 var socket;
+var clickMe = new Image();
+clickMe.src = "./clickme.png";
+clickedMe = false;
 
 function debug(str) {
     var debugDiv = document.getElementById('debug');
@@ -72,11 +75,17 @@ function drawCircle(context,entity) {
         lineWidth = 10;
         var x = entity["x"];
         var y = entity["y"];
+        clickme = entity["icon"];
         //moveTo(x,y);
-        fillStyle = entity["colour"];
-        strokeStyle = fillStyle;
-        arc(x, y, (entity["radius"])?entity["radius"]:50, 0, 2.0 * Math.PI, false);  
-        stroke();                                
+
+        if (clickme) {
+            context.drawImage(clickMe,x-25,y-25,50,50);
+        }else{
+            fillStyle = entity["colour"];
+            strokeStyle = fillStyle;
+            arc(x, y, (entity["radius"])?entity["radius"]:50, 0, 2.0 * Math.PI, false);  
+            stroke();  
+        }                              
     }
 }
 
@@ -151,6 +160,7 @@ function addEntity(entity, data) {
     // Send point to server
     socket.send(JSON.stringify(point));
 }
+
 
 // set counter to start at a random number
 // if all clients start at 0, they'll end up overwriting each other
@@ -257,21 +267,34 @@ mouse = (function() {
     return self;
 })();
 
+
 // Add the application specific mouse listeners!
 //XXX: TODO Make these prettier!
 mouse.mousedowners.push(function(x,y,clicked,e) {
-    addEntityWithoutName({'x':x,'y':y,'colour':brushColor,
-                          'radius':8});
+    if (clickedMe){
+        addEntityWithoutName({'x':x,'y':y,'icon':'clickme'});
+    }else{
+        addEntityWithoutName({'x':x,'y':y,'colour':brushColor,
+                          'radius':7});
+    }
 });
 
 mouse.mouseuppers.push(function(x,y,clicked,e) {
-    addEntityWithoutName({'x':x,'y':y,'colour':brushColor,
-                          'radius':8});
+    if (clickedMe){
+        addEntityWithoutName({'x':x,'y':y,'icon':'clickme'});
+    }else{
+        addEntityWithoutName({'x':x,'y':y,'colour':brushColor,
+                          'radius':7});
+    }
 });
 
 mouse.mousedraggers.push(function(x,y,clicked,e) {
-    addEntityWithoutName({'x':x,'y':y,'colour':brushColor,
+    if (clickedMe){
+        addEntityWithoutName({'x':x,'y':y,'icon':'clickme'});
+    }else{
+        addEntityWithoutName({'x':x,'y':y,'colour':brushColor,
                           'radius':5});
+    }
 });
 
 function update() {
